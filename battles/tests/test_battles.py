@@ -1,13 +1,11 @@
-from datetime import datetime
+import datetime
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from battles.tests.factories import UserFactory, BattleFactory
-
-DATETIME_FORMAT = settings.REST_FRAMEWORK['DATETIME_FORMAT']
 
 
 class BattleTests(APITestCase):
@@ -15,8 +13,12 @@ class BattleTests(APITestCase):
     def setUp(self):
         user = UserFactory(username='lisa', password='l!s@')
 
-        start = datetime.strptime('2017-03-01 14:00:00', DATETIME_FORMAT)
-        end = datetime.strptime('2017-03-01 15:00:00', DATETIME_FORMAT)
+        date = datetime.date(2017, 3, 1)
+        time = datetime.time(14, 0, 0, tzinfo=timezone.get_current_timezone())
+        start = datetime.datetime.combine(date, time)
+
+        time = datetime.time(15, 0, 0, tzinfo=timezone.get_current_timezone())
+        end = datetime.datetime.combine(date, time)
 
         self.battle_1 = BattleFactory(name='test battle 1',
                                       hashtag_1_name='london',
