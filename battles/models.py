@@ -17,7 +17,7 @@ class Tweet(models.Model):
 
 class Hashtag(models.Model):
     name = models.CharField(max_length=30, unique=True)
-    total_typos = models.IntegerField()
+    total_typos = models.IntegerField(default=0)
     tweet_with_most_typos = models.ForeignKey(Tweet, null=True, blank=True)
 
     def __str__(self):

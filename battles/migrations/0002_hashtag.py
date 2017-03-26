@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=30, unique=True)),
-                ('total_typos', models.IntegerField()),
+                ('total_typos', models.IntegerField(default=0)),
                 ('tweet_with_most_typos', models.ForeignKey(null=True, blank=True, on_delete=django.db.models.deletion.CASCADE, to='battles.Tweet')),
             ],
         ),
