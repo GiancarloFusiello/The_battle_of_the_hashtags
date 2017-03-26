@@ -20,4 +20,3 @@ class Battle(models.Model):
     hashtag_2_name = models.CharField(max_length=50)
     start = models.DateTimeField()
     end = models.DateTimeField()
-
