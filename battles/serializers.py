@@ -19,6 +19,8 @@ class HashtagSerializer(serializers.ModelSerializer):
 
 class BattleSerializer(serializers.ModelSerializer):
 
+    status = serializers.CharField()
+
     class Meta:
         model = models.Battle
         fields = '__all__'
