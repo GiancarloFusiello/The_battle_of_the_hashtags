@@ -123,12 +123,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# REST settings
+# DRF settings
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+    'DATETIME_FORMAT': DATETIME_FORMAT,
 }
