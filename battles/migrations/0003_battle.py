@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('hashtag_1_name', models.CharField(max_length=50)),
-                ('hashtag_2_name', models.CharField(max_length=50)),
+                ('hashtag_1_name', models.CharField(max_length=30)),
+                ('hashtag_2_name', models.CharField(max_length=30)),
                 ('start', models.DateTimeField()),
                 ('end', models.DateTimeField()),
             ],

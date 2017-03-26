@@ -16,7 +16,7 @@ class Tweet(models.Model):
 
 
 class Hashtag(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=30, unique=True)
     total_typos = models.IntegerField()
     tweet_with_most_typos = models.ForeignKey(Tweet)
 
@@ -29,8 +29,8 @@ class Hashtag(models.Model):
 
 class Battle(models.Model):
     name = models.CharField(max_length=100)
-    hashtag_1_name = models.CharField(max_length=50)
-    hashtag_2_name = models.CharField(max_length=50)
+    hashtag_1_name = models.CharField(max_length=30)
+    hashtag_2_name = models.CharField(max_length=30)
     start = models.DateTimeField()
     end = models.DateTimeField()
 
