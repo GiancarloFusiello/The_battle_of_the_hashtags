@@ -11,4 +11,3 @@ def create_hashtags(sender, **kwargs):
 
     for hastag in hashtags:
         obj, created = models.Hashtag.objects.get_or_create(name=hastag)
-
