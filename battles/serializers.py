@@ -44,12 +44,8 @@ class BattleSerializer(serializers.ModelSerializer):
 
         start = data.get('start')
         end = data.get('end')
-        if start and end and start >= end:
+        if start >= end:
             msg = 'Start date/time must be set before the end date/time'
-            raise serializers.ValidationError(msg)
-
-        if end and start and end <= start:
-            msg = 'End date/time must be set after the start date/time'
             raise serializers.ValidationError(msg)
 
         return data

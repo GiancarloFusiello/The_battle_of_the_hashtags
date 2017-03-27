@@ -1,3 +1,4 @@
+import copy
 import datetime
 
 from django.core.urlresolvers import reverse
@@ -45,3 +46,79 @@ class BattleTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], self.battle_1.id)
 
+    def test_a_battle_can_be_created(self):
+        url = reverse('battle-list')
+        payload = {'name': 'test battle',
+                   'hashtag_1_name': 'london',
+                   'hashtag_2_name': 'cambridge',
+                   'start': '2017-03-01 13:00:00',
+                   'end': '2017-03-01 14:00:00'}
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        expected_response = copy.deepcopy(payload)
+        expected_response['id'] = response.data.get('id')
+        expected_response['status'] = 'battle is over'
+        self.assertDictEqual(response.data, expected_response)
+
+    def test_a_battle_cant_be_created_with_identical_hashtags(self):
+        url = reverse('battle-list')
+        payload = {'name': 'test battle',
+                   'hashtag_1_name': 'london',
+                   'hashtag_2_name': 'london',
+                   'start': '2017-03-01 13:00:00',
+                   'end': '2017-03-01 14:00:00'}
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'][0],
+                         'Hashtags are identical')
+
+    def test_a_battle_cant_be_created_when_more_than_one_hashtag_in_field(self):
+        url = reverse('battle-list')
+        payload = {'name': 'test battle',
+                   'hashtag_1_name': 'london cambridge',
+                   'hashtag_2_name': 'cambridge',
+                   'start': '2017-03-01 13:00:00',
+                   'end': '2017-03-01 14:00:00'}
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'][0],
+                         'Only one hashtag allowed per field')
+
+        payload = {'name': 'test battle',
+                   'hashtag_1_name': 'london',
+                   'hashtag_2_name': 'cambridge london',
+                   'start': '2017-03-01 13:00:00',
+                   'end': '2017-03-01 14:00:00'}
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'][0],
+                         'Only one hashtag allowed per field')
+
+    def test_a_battle_cant_be_created_with_start_after_end(self):
+        url = reverse('battle-list')
+        payload = {'name': 'test battle',
+                   'hashtag_1_name': 'london',
+                   'hashtag_2_name': 'cambridge',
+                   'start': '2017-03-01 15:00:00',
+                   'end': '2017-03-01 14:00:00'}
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'][0],
+                         'Start date/time must be set before the end date/time')
+
+        payload = {'name': 'test battle',
+                   'hashtag_1_name': 'london',
+                   'hashtag_2_name': 'cambridge',
+                   'start': '2017-03-01 13:00:00',
+                   'end': '2017-02-01 14:00:00'}
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'][0],
+                         'Start date/time must be set before the end date/time')
