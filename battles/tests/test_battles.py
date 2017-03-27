@@ -6,6 +6,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from battles.models import Hashtag
 from battles.tests.factories import UserFactory, BattleFactory
 
 
@@ -122,3 +123,17 @@ class BattleTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['non_field_errors'][0],
                          'Start date/time must be set before the end date/time')
+
+    def test_hashtag_objects_are_created_when_battle_is_created(self):
+        url = reverse('battle-list')
+        payload = {'name': 'test battle',
+                   'hashtag_1_name': 'london',
+                   'hashtag_2_name': 'cambridge',
+                   'start': '2017-03-01 13:00:00',
+                   'end': '2017-03-01 14:00:00'}
+
+        response = self.client.post(url, data=payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        hashtags = Hashtag.objects.all()
+        self.assertEqual(len(hashtags), 2)
