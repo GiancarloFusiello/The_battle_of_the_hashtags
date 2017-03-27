@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='Hashtag',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=30, unique=True)),
+                ('name', models.CharField(max_length=30)),
                 ('total_typos', models.IntegerField(default=0)),
                 ('tweet_with_most_typos', models.ForeignKey(null=True, blank=True, on_delete=django.db.models.deletion.CASCADE, to='battles.Tweet')),
             ],

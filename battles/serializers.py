@@ -31,13 +31,21 @@ class HashtagSerializer(serializers.ModelSerializer):
 
 class BattleSerializer(serializers.ModelSerializer):
 
+    hashtag_1 = serializers.SlugRelatedField(
+        slug_field='name',
+        queryset=models.Hashtag.objects.all()
+    )
+    hashtag_2 = serializers.SlugRelatedField(
+        slug_field='name',
+        queryset=models.Hashtag.objects.all()
+    )
     status = serializers.CharField(allow_null=True, required=False)
 
     def validate(self, data):
-        hashtag_1 = data.get('hashtag_1_name')
+        hashtag_1 = data.get('hashtag_1')
         check_only_one_hashtag(hashtag_1)
 
-        hashtag_2 = data.get('hashtag_2_name')
+        hashtag_2 = data.get('hashtag_2')
         check_only_one_hashtag(hashtag_2)
 
         check_hashtags_are_unique(hashtag_1, hashtag_2)

@@ -1,7 +1,7 @@
 import factory
 from django.contrib.auth.models import User
 
-from battles.models import Battle
+from battles.models import Battle, Hashtag
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -19,7 +19,16 @@ class UserFactory(factory.django.DjangoModelFactory):
     is_active = True
 
 
+class HashtagFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = Hashtag
+
+
 class BattleFactory(factory.django.DjangoModelFactory):
+
+    hashtag_1 = factory.SubFactory(HashtagFactory)
+    hashtag_2 = factory.SubFactory(HashtagFactory)
 
     class Meta:
         model = Battle
