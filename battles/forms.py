@@ -4,11 +4,23 @@ from django.contrib import admin
 from battles.models import Battle
 
 
-def validate_hastag(hashtag):
+def validate_only_one_hastag(hashtag):
     if hashtag and len(hashtag.split()) > 1:
-        msg = 'This hashtag must be a single word'
+        msg = 'Only one hashtag please'
         raise forms.ValidationError(msg)
-    return hashtag
+
+
+def validate_hashtags_are_unique(hashtag_1, hashtag_2):
+    if hashtag_1 == hashtag_2:
+        msg = 'Hashtags are identical'
+        raise forms.ValidationError(msg)
+
+
+def validate_hashtags(data):
+    hashtag_1 = data.get('hashtag_1_name', '')
+    hashtag_2 = data.get('hashtag_2_name', '')
+    validate_hashtags_are_unique(hashtag_1, hashtag_2)
+    validate_only_one_hastag(hashtag_1)
 
 
 class BattleForm(forms.ModelForm):
@@ -18,12 +30,12 @@ class BattleForm(forms.ModelForm):
         fields = '__all__'
 
     def clean_hashtag_1_name(self):
-        hashtag = self.cleaned_data.get('hashtag_1_name', '')
-        return validate_hastag(hashtag)
+        validate_hashtags(self.cleaned_data)
+        return self.cleaned_data.get('hashtag_1_name', '')
 
     def clean_hashtag_2_name(self):
-        hashtag = self.cleaned_data.get('hashtag_2_name', '')
-        return validate_hastag(hashtag)
+        validate_hashtags(self.cleaned_data)
+        return self.cleaned_data.get('hashtag_2_name', '')
 
     def clean_start(self):
         start = self.cleaned_data.get('start')
