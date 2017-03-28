@@ -31,6 +31,12 @@ once these are set you can start the application by running the following:
 python manage.py runserver
 ```
 
+### Lookup battle using battle id
+To lookup a battle using a battle id, run the following url structure:
+```
+http://localhost:8000/api/battles/:id/
+```
+
 ### Todo
 * allow battles to be created using POST requests
 * dockerize project
