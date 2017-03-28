@@ -57,12 +57,12 @@ class BattleSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        hashtag_1, created = Hashtag.objects.get_or_create(
-            name=validated_data['hashtag_1']['name']
-        )
-        hashtag_2, created = Hashtag.objects.get_or_create(
-            name=validated_data['hashtag_2']['name']
-        )
+        hashtag_1 = Hashtag.objects.create(
+            name=validated_data['hashtag_1']['name'])
+
+        hashtag_2 = Hashtag.objects.create(
+            name=validated_data['hashtag_2']['name'])
+
         battle = Battle.objects.create(name=validated_data['name'],
                                        hashtag_1=hashtag_1,
                                        hashtag_2=hashtag_2,

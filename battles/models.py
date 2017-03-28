@@ -64,9 +64,9 @@ class Battle(models.Model):
             )
 
     def __str__(self):
-        return '{}: {} - #{} vs #{} - {}'.format(
+        return '{}: {} - #{} vs #{} - {} - winning: {}'.format(
             self.id, self.name, self.hashtag_1.name, self.hashtag_2.name,
-            self.status)
+            self.status, self.winning)
 
     def __repr__(self):
         return '<{}: {}>'.format(self.id, self.name)
