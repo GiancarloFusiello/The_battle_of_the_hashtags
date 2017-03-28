@@ -1,14 +1,11 @@
 import copy
 import datetime
-from collections import OrderedDict
-from unittest import skip
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from battles.models import Hashtag
 from battles.tests.factories import UserFactory, BattleFactory, HashtagFactory
 
 
@@ -65,14 +62,13 @@ class BattleTests(APITestCase):
 
         expected_response = copy.deepcopy(payload)
         expected_response['id'] = response.data.get('id')
-        expected_response['hashtag_1'] = OrderedDict(
-            {'name': 'london', 'total_typos': 0}
-        )
-        expected_response['hashtag_2'] = OrderedDict(
-            {'total_typos': 0, 'name': 'cambridge'}
-        )
+        expected_response['hashtag_1'] = {'name': 'london', 'total_typos': 0}
+        expected_response['hashtag_2'] = {'name': 'cambridge', 'total_typos': 0}
         expected_response['status'] = 'battle is over'
         expected_response['winning'] = 'both #london and #cambridge have 0 typos'
+        # replace ordereddict with normal dict so the assertion works correctly
+        response.data['hashtag_1'] = dict(response.data['hashtag_1'])
+        response.data['hashtag_2'] = dict(response.data['hashtag_2'])
         self.assertDictEqual(response.data, expected_response)
 
     def test_a_battle_cant_be_created_with_identical_hashtags(self):
@@ -136,16 +132,15 @@ class BattleTests(APITestCase):
         self.assertEqual(response.data['non_field_errors'][0],
                          'Start date/time must be set before the end date/time')
 
-    def test_hashtag_objects_are_created_when_battle_is_created(self):
+    def test_total_typos_in_hashtags_are_not_saved(self):
         url = reverse('battle-list')
         payload = {'name': 'test battle',
-                   'hashtag_1': {'name': 'london'},
-                   'hashtag_2': {'name': 'cambridge'},
+                   'hashtag_1': {'name': 'london', 'total_typos': 5},
+                   'hashtag_2': {'name': 'cambridge', 'total_typos': 10},
                    'start': '2017-03-01 13:00:00',
                    'end': '2017-03-01 14:00:00'}
 
         response = self.client.post(url, data=payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        hashtags = Hashtag.objects.all()
-        self.assertEqual(len(hashtags), 2)
+        self.assertEqual(response.data['hashtag_1']['total_typos'], 0)
+        self.assertEqual(response.data['hashtag_2']['total_typos'], 0)
