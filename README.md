@@ -11,6 +11,10 @@ I have purposely not used Python 3.6 new string formatting to ensure ease of ins
 * clone the project
 * (optional) create a virtualenv
 * in the project folder, run `pip install -r requirements.txt`
+* run migrations `python manage.py migrate`
+
+##### Non production
+* create admin account, run `python manage.py createsuperuser`
 
 ### How to start the application
 
@@ -28,6 +32,7 @@ python manage.py runserver
 ```
 
 ### Todo
+* allow battles to be created using POST requests
 * dockerize project
 * add a front-end for creating battles
 * allow a user to specify other attributes for comparison
