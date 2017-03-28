@@ -1,13 +1,11 @@
 import copy
 import datetime
-from unittest import skip
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from battles.models import Hashtag
 from battles.tests.factories import UserFactory, BattleFactory, HashtagFactory
 
 
@@ -51,12 +49,11 @@ class BattleTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], self.battle_1.id)
 
-    @skip('re-enable when battles can be created by post request')
     def test_a_battle_can_be_created(self):
         url = reverse('battle-list')
         payload = {'name': 'test battle',
-                   'hashtag_1': 'london',
-                   'hashtag_2': 'cambridge',
+                   'hashtag_1': {'name': 'london'},
+                   'hashtag_2': {'name': 'cambridge'},
                    'start': '2017-03-01 13:00:00',
                    'end': '2017-03-01 14:00:00'}
 
@@ -65,15 +62,20 @@ class BattleTests(APITestCase):
 
         expected_response = copy.deepcopy(payload)
         expected_response['id'] = response.data.get('id')
+        expected_response['hashtag_1'] = {'name': 'london', 'total_typos': 0}
+        expected_response['hashtag_2'] = {'name': 'cambridge', 'total_typos': 0}
         expected_response['status'] = 'battle is over'
+        expected_response['winning'] = 'both #london and #cambridge have 0 typos'
+        # replace ordereddict with normal dict so the assertion works correctly
+        response.data['hashtag_1'] = dict(response.data['hashtag_1'])
+        response.data['hashtag_2'] = dict(response.data['hashtag_2'])
         self.assertDictEqual(response.data, expected_response)
 
-    @skip('re-enable when battles can be created by post request')
     def test_a_battle_cant_be_created_with_identical_hashtags(self):
         url = reverse('battle-list')
         payload = {'name': 'test battle',
-                   'hashtag_1': 'london',
-                   'hashtag_2': 'london',
+                   'hashtag_1': {'name': 'london'},
+                   'hashtag_2': {'name': 'london'},
                    'start': '2017-03-01 13:00:00',
                    'end': '2017-03-01 14:00:00'}
 
@@ -82,37 +84,35 @@ class BattleTests(APITestCase):
         self.assertEqual(response.data['non_field_errors'][0],
                          'Hashtags are identical')
 
-    @skip('re-enable when battles can be created by post request')
     def test_a_battle_cant_be_created_when_more_than_one_hashtag_in_field(self):
         url = reverse('battle-list')
         payload = {'name': 'test battle',
-                   'hashtag_1': 'london cambridge',
-                   'hashtag_2': 'cambridge',
+                   'hashtag_1': {'name': 'london cambridge'},
+                   'hashtag_2': {'name': 'cambridge'},
                    'start': '2017-03-01 13:00:00',
                    'end': '2017-03-01 14:00:00'}
 
         response = self.client.post(url, data=payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['non_field_errors'][0],
-                         'Only one hashtag allowed per field')
+        self.assertEqual(response.data,
+                         {'hashtag_1': {'non_field_errors': ['Only one hashtag allowed per field']}})
 
         payload = {'name': 'test battle',
-                   'hashtag_1': 'london',
-                   'hashtag_2': 'cambridge london',
+                   'hashtag_1': {'name': 'london'},
+                   'hashtag_2': {'name': 'cambridge london'},
                    'start': '2017-03-01 13:00:00',
                    'end': '2017-03-01 14:00:00'}
 
         response = self.client.post(url, data=payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['non_field_errors'][0],
-                         'Only one hashtag allowed per field')
+        self.assertEqual(response.data,
+                         {'hashtag_2': {'non_field_errors': ['Only one hashtag allowed per field']}})
 
-    @skip('re-enable when battles can be created by post request')
     def test_a_battle_cant_be_created_with_start_after_end(self):
         url = reverse('battle-list')
         payload = {'name': 'test battle',
-                   'hashtag_1': 'london',
-                   'hashtag_2': 'cambridge',
+                   'hashtag_1': {'name': 'london'},
+                   'hashtag_2': {'name': 'cambridge'},
                    'start': '2017-03-01 15:00:00',
                    'end': '2017-03-01 14:00:00'}
 
@@ -122,8 +122,8 @@ class BattleTests(APITestCase):
                          'Start date/time must be set before the end date/time')
 
         payload = {'name': 'test battle',
-                   'hashtag_1': 'london',
-                   'hashtag_2': 'cambridge',
+                   'hashtag_1': {'name': 'london'},
+                   'hashtag_2': {'name': 'cambridge'},
                    'start': '2017-03-01 13:00:00',
                    'end': '2017-02-01 14:00:00'}
 
@@ -132,17 +132,15 @@ class BattleTests(APITestCase):
         self.assertEqual(response.data['non_field_errors'][0],
                          'Start date/time must be set before the end date/time')
 
-    @skip('re-enable when battles can be created by post request')
-    def test_hashtag_objects_are_created_when_battle_is_created(self):
+    def test_total_typos_in_hashtags_are_not_saved(self):
         url = reverse('battle-list')
         payload = {'name': 'test battle',
-                   'hashtag_1': 'london',
-                   'hashtag_2': 'cambridge',
+                   'hashtag_1': {'name': 'london', 'total_typos': 5},
+                   'hashtag_2': {'name': 'cambridge', 'total_typos': 10},
                    'start': '2017-03-01 13:00:00',
                    'end': '2017-03-01 14:00:00'}
 
         response = self.client.post(url, data=payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        hashtags = Hashtag.objects.all()
-        self.assertEqual(len(hashtags), 2)
+        self.assertEqual(response.data['hashtag_1']['total_typos'], 0)
+        self.assertEqual(response.data['hashtag_2']['total_typos'], 0)

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from battles import models
+from battles.models import Hashtag, Battle
 
 
 def check_only_one_hashtag(hashtag):
@@ -24,30 +25,27 @@ class TweetSerializer(serializers.ModelSerializer):
 
 class HashtagSerializer(serializers.ModelSerializer):
 
+    total_typos = serializers.ReadOnlyField()
+
     class Meta:
         model = models.Hashtag
-        fields = '__all__'
+        exclude = ('id', 'tweet_with_most_typos',)
+
+    def validate(self, data):
+        check_only_one_hashtag(data.get('name'))
+        return data
 
 
 class BattleSerializer(serializers.ModelSerializer):
 
-    hashtag_1 = serializers.SlugRelatedField(
-        slug_field='name',
-        queryset=models.Hashtag.objects.all()
-    )
-    hashtag_2 = serializers.SlugRelatedField(
-        slug_field='name',
-        queryset=models.Hashtag.objects.all()
-    )
+    hashtag_1 = HashtagSerializer()
+    hashtag_2 = HashtagSerializer()
     status = serializers.CharField(allow_null=True, required=False)
+    winning = serializers.CharField(allow_null=True, required=False)
 
     def validate(self, data):
         hashtag_1 = data.get('hashtag_1')
-        check_only_one_hashtag(hashtag_1)
-
         hashtag_2 = data.get('hashtag_2')
-        check_only_one_hashtag(hashtag_2)
-
         check_hashtags_are_unique(hashtag_1, hashtag_2)
 
         start = data.get('start')
@@ -57,6 +55,20 @@ class BattleSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(msg)
 
         return data
+
+    def create(self, validated_data):
+        hashtag_1 = Hashtag.objects.create(
+            name=validated_data['hashtag_1']['name'])
+
+        hashtag_2 = Hashtag.objects.create(
+            name=validated_data['hashtag_2']['name'])
+
+        battle = Battle.objects.create(name=validated_data['name'],
+                                       hashtag_1=hashtag_1,
+                                       hashtag_2=hashtag_2,
+                                       start=validated_data['start'],
+                                       end=validated_data['end'])
+        return battle
 
     class Meta:
         model = models.Battle

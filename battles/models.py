@@ -47,10 +47,26 @@ class Battle(models.Model):
         else:
             return 'in progress'
 
+    @property
+    def winning(self):
+        if self.hashtag_1.total_typos < self.hashtag_2.total_typos:
+            return '#{} with {} typos'.format(
+                self.hashtag_1.name, self.hashtag_1.total_typos
+            )
+        elif self.hashtag_2.total_typos < self.hashtag_1.total_typos:
+            return '#{} with {} typos'.format(
+                self.hashtag_2.name, self.hashtag_2.total_typos
+            )
+        else:
+            return 'both #{} and #{} have {} typos'.format(
+                self.hashtag_1.name, self.hashtag_2.name,
+                self.hashtag_1.total_typos
+            )
+
     def __str__(self):
-        return '{}: {} - #{} vs #{} - {}'.format(
+        return '{}: {} - #{} vs #{} - {} - winning: {}'.format(
             self.id, self.name, self.hashtag_1.name, self.hashtag_2.name,
-            self.status)
+            self.status, self.winning)
 
     def __repr__(self):
         return '<{}: {}>'.format(self.id, self.name)
