@@ -1,9 +1,11 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import enchant
 import twitter
+from celery.task import periodic_task
+from django.utils import timezone
 
 from battles.models import Hashtag, Tweet, Battle
 
@@ -77,3 +79,10 @@ def battle(battle_id):
 
     get_hashtag_info(battle.hashtag_1.id, start_date, end_date)
     get_hashtag_info(battle.hashtag_2.id, start_date, end_date)
+
+
+@periodic_task(run_every=(timedelta(seconds=15)))
+def task_runner():
+    for battle_obj in Battle.objects.filter(start__lt=timezone.now(),
+                                            end__gt=timezone.now()):
+        battle(battle_obj.id)

@@ -2,7 +2,6 @@ import os
 
 import djcelery
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('DJANGO_KEY')
@@ -23,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # third party apps
     'djcelery',
-    'kombu.transport.django',  # only use in development
+    'kombu.transport.django',
     'rest_framework',
     # project apps
     'battles',
@@ -108,6 +107,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # DRF settings
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -120,9 +120,6 @@ REST_FRAMEWORK = {
     'DATETIME_FORMAT': DATETIME_FORMAT,
 }
 
-# Django Celery settings
+# Django celery settings
 djcelery.setup_loader()
 BROKER_URL = 'django://'
-
-# TODO: remove this in prod
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
