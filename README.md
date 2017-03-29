@@ -42,7 +42,7 @@ http://localhost:8000/admin/
 ```
 
 or by POST request using the following data format:
-```json
+```cmd
 {
   'name': 'test battle',
   'hashtag_1': {'name': 'london'},
