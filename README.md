@@ -1,6 +1,6 @@
 # The battle of the hashtags
 
-A django application that periodically checks the number of typos for all tweets that contain a given hashtag over a given period of time. In a "battle", at the end of the battle period, the number of typos are compared and the hashtag with the most typos is the winner.
+A django application that periodically checks the number of typos for all tweets that contain a given hashtag over a given period of time. In a "battle", at the end of the battle period, the number of typos are compared and the hashtag with the least typos is the winner.
 
 ### requirements
 * python 3+
