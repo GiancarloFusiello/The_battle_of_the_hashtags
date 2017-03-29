@@ -9,12 +9,11 @@ I have purposely not used Python 3.6 new string formatting to ensure ease of ins
 
 ### Installation
 * clone the project
-* (optional) create a virtualenv
-* in the project folder, run `pip install -r requirements.txt`
-* run migrations `python manage.py migrate`
-
-##### Non production
-* create admin account, run `python manage.py createsuperuser`
+* create a virtualenv (optional) 
+* install requirements - `pip install -r requirements.txt`
+* run migrations - `python manage.py migrate`
+* collect static content - `python manage.py collectstatic`
+* create admin account - `python manage.py createsuperuser`
 
 ### How to start the application
 
@@ -26,18 +25,17 @@ You will need to set environment variables for the following:
 * TWITTER_TOKEN_KEY
 * TWITTER_TOKEN_SECRET
 
-once these are set you can start the application by running the following:
+Once these are set you can start the application by running the following:
 ```cmd
 python manage.py runserver
 ```
-
-### Lookup battle using battle id
-To lookup a battle using a battle id use the following url structure (replacing :id with the battle id):
+Then open a new terminal window and navigate to you project path (and activate your virtualenv if you created one) and run the following:
+```cmd
+python manage.py celery beat
 ```
-http://localhost:8000/api/battles/:id/
-```
+That's it! you're now ready to login and start creating battles.
 
-### create battles
+### Create battles
 Battle can be created either by an admin user in the admin panel:
 ```
 http://localhost:8000/admin/
@@ -52,6 +50,11 @@ or by POST request using the following data format:
   'start': '2017-03-01 13:00:00',
   'end': '2017-03-01 14:00:00'
 }
+```
+### Lookup battle using battle id
+To lookup a battle using a battle id use the following url structure (replacing :id with the battle id):
+```
+http://localhost:8000/api/battles/:id/
 ```
 
 ### Todo
