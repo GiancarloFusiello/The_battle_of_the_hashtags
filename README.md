@@ -58,6 +58,8 @@ http://localhost:8000/api/battles/:id/
 ```
 
 ### Todo
+* add more tests
+* use Postgres
 * extend the battle serializer to show more detailed tweet info
 * dockerize project
 * add a front-end for creating battles
